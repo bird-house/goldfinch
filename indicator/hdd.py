@@ -2,6 +2,24 @@ import click
 import warnings
 import xclim.cli
 
+"""
+# Notes
+
+Based on xclim's CLI, which uses click.MultiCommand (recently deprecated in favor of click.Group). 
+
+Click 
+
+Dask-related options are copied from xclim but have not been tested and 
+would require adding dependencies to the environment.
+
+The only netCDF engine installed in the environment is h5netcdf, so the option to switch 
+to another engine would not work in this env. 
+
+The CLI's input is a path to a file, not a catalog item ID. There's a TODO below about this.
+
+The CLI's output is a user input. We'll probably want to change this to a default output path.
+"""
+
 class Cli(click.MultiCommand):
     """Main cli class."""
 
@@ -36,9 +54,6 @@ class Cli(click.MultiCommand):
     "-v", "--verbose", help="Print details about context and progress.", count=True
 )
 @click.option(
-    "-V", "--version", is_flag=True, help="Prints xclim's version number and exits"
-)
-@click.option(
     "--dask-nthreads",
     type=int,
     help="Start a dask.distributed Client with this many threads and 1 worker. "
@@ -69,14 +84,10 @@ def cli(ctx, **kwargs):
         warnings.simplefilter("ignore", FutureWarning)
         warnings.simplefilter("ignore", DeprecationWarning)
 
-    if kwargs["version"]:
-        click.echo(f"xclim {xc.__version__}")
-    elif ctx.invoked_subcommand is None:
-        raise click.UsageError("Missing command.", ctx)
-
     if len(kwargs["input"]) == 0:
         kwargs["input"] = None
     elif len(kwargs["input"]) == 1:
+        # TODO: Map catalog ID to path or URL
         kwargs["input"] = kwargs["input"][0]
 
     if kwargs["dask_nthreads"] is not None:
