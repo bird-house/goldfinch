@@ -3,14 +3,14 @@ from functools import partial
 from click.testing import CliRunner
 import xarray as xr
 import numpy as np
-from xclim.testing.helpers import test_timeseries
+from xclim.testing.helpers import test_timeseries as tt
 from poly_subset import cli
 
 
 @pytest.fixture
 def tas_series():
     """Return mean temperature time series."""
-    _tas_series = partial(test_timeseries, variable="tas")
+    _tas_series = partial(tt, variable="tas")
     return _tas_series
 
 
