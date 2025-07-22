@@ -14,7 +14,10 @@ requires-python = ">=3.10"
 license = "Apache-2.0"
 dependencies = [
     "click",
-    "click2cwl @ git+https://github.com/Terradue/click2cwl"
+    "click-option-group",
+    # Temporarily use fork until PR is merged upstream (https://github.com/Terradue/click2cwl/pull/4)
+    # "click2cwl @ git+https://github.com/Terradue/click2cwl"
+    "click2cwl @ git+https://github.com/Terradue/click2cwl.git#egg=fix-path-not-dir"
 ]
 
 [project.scripts]
