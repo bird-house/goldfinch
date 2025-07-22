@@ -171,7 +171,7 @@ cython_debug/
 
 ### Output Files
 *.cwl
-!src/processes/**/*.cwl
+!src/goldfinch/processes/**/*.cwl
 *.y[a]ml
 *.json
-!src/processes/subset/small_geojson.json
+!src/goldfinch/processes/subset/small_geojson.json

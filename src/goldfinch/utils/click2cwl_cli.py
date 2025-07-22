@@ -7,7 +7,8 @@ import importlib.util
 import inspect
 import os
 import sys
-from typing import cast
+from collections import OrderedDict
+from typing import Any, cast
 
 import click
 import click2cwl
@@ -17,8 +18,25 @@ from click import Parameter, Context
 from click2cwl.cltexport import CLTExport
 from click2cwl.cwlexport import CWLExport
 from click2cwl.cwlparam import CWLParam
+from click2cwl.metadata import WorkflowMetadata
 from click2cwl.paramexport import ParamExport
 from click_option_group import optgroup, MutuallyExclusiveOptionGroup
+
+
+CWL_METADATA_FIELDS_EXTRAS = ["cwlVersion", "doc", "label", "id"]
+CWL_METADATA_FIELDS_AUTO = ["version", "author", "organization"]
+CWL_METADATA_FIELDS = CWL_METADATA_FIELDS_EXTRAS + CWL_METADATA_FIELDS_AUTO
+
+
+class CWLMetadataExtended(WorkflowMetadata):
+    def to_dict(self):
+        meta = super().to_dict()
+        for field in CWL_METADATA_FIELDS_EXTRAS:
+            if field in self._fields:
+                meta[field] = self._fields[field]
+        if "schemas" in meta:
+            meta["$schemas"] = meta.pop("schemas")
+        return meta
 
 
 class FlagPath(click.Path):
@@ -31,6 +49,27 @@ class FlagPath(click.Path):
         if isinstance(value, bool):
             return value
         return super().convert(value, param, ctx)
+
+
+class MetadataParam(click.types.StringParamType):
+    def convert(self, value: str, param: Parameter | None, ctx: Context | None) -> str:
+        args = value.split("=", 1)
+        if len(args) != 2 or not args[0].strip() or not args[1].strip():
+            raise click.BadParameter(
+                "Metadata must be specified as '<field>=<value>'",
+                param=param,
+                ctx=ctx,
+            )
+        return super().convert(value, param, ctx)
+
+
+def yaml_dump(data: dict[str, Any], *args: Any, **kwargs: Any) -> str:
+    """
+    Custom YAML dump function to ensure consistent formatting.
+    """
+    represent_dict_order = lambda self, _data: self.represent_mapping("tag:yaml.org,2002:map", _data.items())
+    yaml.add_representer(OrderedDict, represent_dict_order)
+    return yaml.dump(data, *args, **kwargs)
 
 
 @click.command(
@@ -66,6 +105,49 @@ class FlagPath(click.Path):
     "--output-format", "output_format",
     type=click.Choice(["json", "yaml"]),
     help="Enforce the output format instead of auto-detecting based on file extension."
+)
+@click.option(
+    "--cwl-version",
+    help="Specific version to use for the CWL document.",
+    default="v1.2",
+)
+@click.option(
+    "-m", "--metadata",
+    help=(
+         "General metadata for the CWL document defined as '<field>=<value>' for each entry. "
+         f"Can be repeated for multiple metadata field properties {CWL_METADATA_FIELDS}."
+    ),
+    type=MetadataParam(),
+    multiple=True,
+)
+@click.option(
+    "--docker",
+    help="Specific docker image to use for the CWL command line tool.",
+)
+@click.option(
+    "--coresMin", "coresMin",
+    help="Minimum CPU cores resource requirement the CWL command line tool.",
+    type=int,
+)
+@click.option(
+    "--coresMax", "coresMax",
+    help="Maximum CPU cores resource requirement the CWL command line tool.",
+    type=int,
+)
+@click.option(
+    "--ramMin", "ramMin",
+    help="Minimum RAM resource requirement the CWL command line tool.",
+    type=int,
+)
+@click.option(
+    "--ramMax", "ramMax",
+    help="Maximum RAM resource requirement the CWL command line tool.",
+    type=int,
+)
+@click.option(
+    "--wall-time",
+    help="Maximum time limit requirement the CWL command line tool.",
+    type=int,
 )
 @optgroup.group(
     "Operation",
@@ -137,6 +219,14 @@ def main(ctx: click.Context, **kwargs: str) -> None:
     if kwargs.get("output"):
         output_cwl = kwargs["output"]
 
+    # add additional parameters to the CWL context
+    for req in ["docker", "wall-time", "coresMin", "coresMax", "ramMin", "ramMax", "metadata", "cwl-version"]:
+        val = kwargs.get(req) or kwargs.get(req.replace("-", "_"))
+        if val:
+            val = [val] if isinstance(val, str) else val
+            for req_val in val:
+                cli_ctx.args.extend([f"--{req}", req_val])
+
     # convert the Click command to CWL
     cli_cwl = click2cwl.Click2CWL(cli_ctx)
 
@@ -165,17 +255,28 @@ def main(ctx: click.Context, **kwargs: str) -> None:
 
         # perform output
         export_json = kwargs.get("output_format") == "json" or str(export_output).endswith(".json")
-        export_type = json.dump if export_json else yaml.dump
+        export_type = json.dump if export_json else yaml_dump
+        export_data = exporter.to_dict()
+
+        # enforce certain metadata requirements
+        # Workflow ('cwl') does it automatically, but CommandLineTool ('clt') does not
+        cwl_meta = exporter.click2cwl.extra_params.get("metadata", {})
+        if cwl_meta and any(
+            key not in export_data and f"s:{key}" not in export_data
+            for key in CWL_METADATA_FIELDS
+        ):
+            export_meta = CWLMetadataExtended(**cwl_meta).to_dict()
+            export_data.update(export_meta)
+
+        # write to file or print to stdout
         if export_output is not True:
-            export_data = exporter.to_dict()
             with open(export_output, mode="w", encoding="utf-8") as out_file:
                 export_type(export_data, out_file, indent=2)
             print("Document written to:", export_output)
         elif export_json:
-            export_data = exporter.to_dict()
-            json.dumps(export_data, indent=2)
+            print(json.dumps(export_data, indent=2))
         else:
-            exporter.dump(stdout=True)
+            print(yaml_dump(export_data, indent=2))
 
 
 if __name__ == "__main__":
