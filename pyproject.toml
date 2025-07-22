@@ -7,7 +7,7 @@ name = "goldfinch"
 version = "0.1.0"
 description = "Climate service processes defined through CWL."
 authors = [
-    { name = "Francis Charette-Migneault", email = "francis.charette.migneault@gmail.com" }
+    { name = "Francis Charette-Migneault", email = "francis.charette-migneault@crim.ca" }
 ]
 readme = "README.md"
 requires-python = ">=3.10"
