@@ -21,7 +21,7 @@ dependencies = [
 ]
 
 [project.scripts]
-click2cwl = "click2cwl.click2cwl_cli:main"
+click2cwl = "goldfinch.utils.click2cwl_cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
