@@ -1,0 +1,4 @@
+dependencies:
+- click
+- xclim
+- h5netcdf

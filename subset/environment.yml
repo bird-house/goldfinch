@@ -1,0 +1,5 @@
+dependencies:
+- click
+- clisops
+- h5netcdf
+
