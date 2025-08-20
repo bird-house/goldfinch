@@ -10,42 +10,390 @@ hints:
     dockerPull: ghcr.io/bird-house/goldfinch:0.1.0
 id: hdd
 inputs:
+  indicator:
+    inputBinding:
+      position: 1
+      prefix: --indicator
+    type:
+    - symbols: !!python/tuple
+      - HUMIDEX
+      - HEAT_INDEX
+      - TG
+      - WIND_SPEED_FROM_VECTOR
+      - WIND_VECTOR_FROM_SPEED
+      - WIND_POWER_POTENTIAL
+      - WIND_PROFILE
+      - E_SAT
+      - HURS_FROMDEWPOINT
+      - HURS
+      - HUSS
+      - HUSS_FROMDEWPOINT
+      - VAPOR_PRESSURE_DEFICIT
+      - PRSN
+      - PRLP
+      - WIND_CHILL
+      - POTENTIAL_EVAPOTRANSPIRATION
+      - WATER_BUDGET_FROM_TAS
+      - WATER_BUDGET
+      - CORN_HEAT_UNITS
+      - UTCI
+      - MEAN_RADIANT_TEMPERATURE
+      - SHORTWAVE_UPWELLING_RADIATION_FROM_NET_DOWNWELLING
+      - LONGWAVE_UPWELLING_RADIATION_FROM_NET_DOWNWELLING
+      - CLEARNESS_INDEX
+      - RAIN_FRZGR
+      - RX1DAY
+      - MAX_N_DAY_PRECIPITATION_AMOUNT
+      - WETDAYS
+      - WETDAYS_PROP
+      - DRY_DAYS
+      - DRYNESS_INDEX
+      - CWD
+      - CDD
+      - SDII
+      - MAX_PR_INTENSITY
+      - PRCPTOT
+      - PRCPAVG
+      - WET_PRCPTOT
+      - LIQUIDPRCPTOT
+      - LIQUIDPRCPAVG
+      - SOLIDPRCPTOT
+      - SOLIDPRCPAVG
+      - xclim.core.indicator.SPI
+      - xclim.core.indicator.SPEI
+      - DC
+      - DMC
+      - CFFWIS
+      - KBDI
+      - DF
+      - FFDI
+      - LAST_SNOWFALL
+      - FIRST_SNOWFALL
+      - DAYS_WITH_SNOW
+      - SNOWFALL_FREQUENCY
+      - SNOWFALL_INTENSITY
+      - DAYS_OVER_PRECIP_THRESH
+      - DAYS_OVER_PRECIP_DOY_THRESH
+      - HIGH_PRECIP_LOW_TEMP
+      - FRACTION_OVER_PRECIP_DOY_THRESH
+      - FRACTION_OVER_PRECIP_THRESH
+      - LIQUID_PRECIP_RATIO
+      - DRY_SPELL_FREQUENCY
+      - DRY_SPELL_TOTAL_LENGTH
+      - DRY_SPELL_MAX_LENGTH
+      - WET_SPELL_FREQUENCY
+      - WET_SPELL_TOTAL_LENGTH
+      - WET_SPELL_MAX_LENGTH
+      - RPRCTOT
+      - COLD_AND_DRY_DAYS
+      - WARM_AND_DRY_DAYS
+      - WARM_AND_WET_DAYS
+      - COLD_AND_WET_DAYS
+      - RAIN_SEASON
+      - WATER_CYCLE_INTENSITY
+      - JETSTREAM_METRIC_WOOLLINGS
+      - TN_DAYS_ABOVE
+      - TN_DAYS_BELOW
+      - TG_DAYS_ABOVE
+      - TG_DAYS_BELOW
+      - TX_DAYS_ABOVE
+      - TX_DAYS_BELOW
+      - TX_TN_DAYS_ABOVE
+      - HEAT_WAVE_FREQUENCY
+      - HOT_SPELL_MAX_MAGNITUDE
+      - HEAT_WAVE_MAX_LENGTH
+      - HEAT_WAVE_TOTAL_LENGTH
+      - HEAT_WAVE_INDEX
+      - HEAT_SPELL_FREQUENCY
+      - HEAT_SPELL_MAX_LENGTH
+      - HEAT_SPELL_TOTAL_LENGTH
+      - HOT_SPELL_FREQUENCY
+      - HOT_SPELL_MAX_LENGTH
+      - HOT_SPELL_TOTAL_LENGTH
+      - TG_MEAN
+      - TG_MAX
+      - TG_MIN
+      - TX_MEAN
+      - TX_MAX
+      - TX_MIN
+      - TN_MEAN
+      - TN_MAX
+      - TN_MIN
+      - DTR
+      - DTRMAX
+      - DTRVAR
+      - ETR
+      - COLD_SPELL_DURATION_INDEX
+      - COLD_SPELL_DAYS
+      - COLD_SPELL_FREQUENCY
+      - COLD_SPELL_MAX_LENGTH
+      - COLD_SPELL_TOTAL_LENGTH
+      - COOL_NIGHT_INDEX
+      - DLYFRZTHW
+      - FREEZETHAW_SPELL_FREQUENCY
+      - FREEZETHAW_SPELL_MEAN_LENGTH
+      - FREEZETHAW_SPELL_MAX_LENGTH
+      - COOLING_DEGREE_DAYS
+      - COOLING_DEGREE_DAYS_APPROXIMATION
+      - HEATING_DEGREE_DAYS
+      - HEATING_DEGREE_DAYS_APPROXIMATION
+      - GROWING_DEGREE_DAYS
+      - FREEZING_DEGREE_DAYS
+      - THAWING_DEGREE_DAYS
+      - FRESHET_START
+      - FROST_DAYS
+      - FROST_SEASON_LENGTH
+      - LAST_SPRING_FROST
+      - FIRST_DAY_TN_BELOW
+      - FIRST_DAY_TG_BELOW
+      - FIRST_DAY_TX_BELOW
+      - FIRST_DAY_TN_ABOVE
+      - FIRST_DAY_TG_ABOVE
+      - FIRST_DAY_TX_ABOVE
+      - ICE_DAYS
+      - CONSECUTIVE_FROST_DAYS
+      - FROST_FREE_SEASON_LENGTH
+      - FROST_FREE_SEASON_START
+      - FROST_FREE_SEASON_END
+      - FROST_FREE_SPELL_MAX_LENGTH
+      - CONSECUTIVE_FROST_FREE_DAYS
+      - GROWING_SEASON_START
+      - GROWING_SEASON_LENGTH
+      - GROWING_SEASON_END
+      - TROPICAL_NIGHTS
+      - TG90P
+      - TG10P
+      - TX90P
+      - TX10P
+      - TN90P
+      - TN10P
+      - DEGREE_DAYS_EXCEEDANCE_DATE
+      - WARM_SPELL_DURATION_INDEX
+      - MAXIMUM_CONSECUTIVE_WARM_DAYS
+      - FIRE_SEASON
+      - HUGLIN_INDEX
+      - BIOLOGICALLY_EFFECTIVE_DEGREE_DAYS
+      - EFFECTIVE_GROWING_DEGREE_DAYS
+      - LATITUDE_TEMPERATURE_INDEX
+      - LATE_FROST_DAYS
+      - AUSTRALIAN_HARDINESS_ZONES
+      - USDA_HARDINESS_ZONES
+      - CP
+      - CU
+      - CALM_DAYS
+      - WINDY_DAYS
+      - SFCWIND_MAX
+      - SFCWIND_MEAN
+      - SFCWIND_MIN
+      - SFCWINDMAX_MAX
+      - SFCWINDMAX_MEAN
+      - SFCWINDMAX_MIN
+      - FIT
+      - RETURN_LEVEL
+      - STATS
+      - SND_SEASON_LENGTH
+      - SNW_SEASON_LENGTH
+      - SND_SEASON_START
+      - SNW_SEASON_START
+      - SND_SEASON_END
+      - SNW_SEASON_END
+      - SND_MAX_DOY
+      - SNOW_MELT_WE_MAX
+      - SNW_MAX
+      - SNW_MAX_DOY
+      - MELT_AND_PRECIP_MAX
+      - SND_STORM_DAYS
+      - SNW_STORM_DAYS
+      - BLOWING_SNOW
+      - SNOW_DEPTH
+      - SND_TO_SNW
+      - SNW_TO_SND
+      - SND_DAYS_ABOVE
+      - SNW_DAYS_ABOVE
+      - HOLIDAY_SNOW_DAYS
+      - HOLIDAY_SNOW_AND_SNOWFALL_DAYS
+      - BASE_FLOW_INDEX
+      - RB_FLASHINESS_INDEX
+      - DOY_QMAX
+      - DOY_QMIN
+      - xclim.core.indicator.FLOW_INDEX
+      - HIGH_FLOW_FREQUENCY
+      - LOW_FLOW_FREQUENCY
+      - xclim.core.indicator.SSI
+      - xclim.core.indicator.SGI
+      - SEA_ICE_EXTENT
+      - SEA_ICE_AREA
+      - icclim.TG
+      - icclim.TX
+      - icclim.TN
+      - icclim.TG90P
+      - icclim.TG10P
+      - icclim.TGX
+      - icclim.TGN
+      - icclim.TX90P
+      - icclim.TX10P
+      - icclim.TXX
+      - icclim.TXN
+      - icclim.TN90P
+      - icclim.TN10P
+      - icclim.TNX
+      - icclim.TNN
+      - icclim.HI
+      - icclim.BEDD
+      - icclim.CSDI
+      - icclim.WSDI
+      - icclim.SU
+      - icclim.CSU
+      - icclim.TR
+      - icclim.GD4
+      - icclim.FD
+      - icclim.CFD
+      - icclim.GSL
+      - icclim.ID
+      - icclim.HD17
+      - icclim.CDD
+      - icclim.CWD
+      - icclim.RR
+      - icclim.PRCPTOT
+      - icclim.SDII
+      - icclim.ETR
+      - icclim.DTR
+      - icclim.VDTR
+      - icclim.RR1
+      - icclim.R10MM
+      - icclim.R20MM
+      - icclim.RX1DAY
+      - icclim.RX5DAY
+      - icclim.R75P
+      - icclim.R95P
+      - icclim.R99P
+      - icclim.R75PTOT
+      - icclim.R95PTOT
+      - icclim.R99PTOT
+      - icclim.SD
+      - icclim.SD1
+      - icclim.SD5CM
+      - icclim.SD50CM
+      - icclim.CD
+      - icclim.WD
+      - icclim.WW
+      - icclim.CW
+      - anuclim.P10_MEANTEMPWARMESTQUARTER
+      - anuclim.P11_MEANTEMPCOLDESTQUARTER
+      - anuclim.P12_ANNUALPRECIP
+      - anuclim.P13_PRECIPWETTESTPERIOD
+      - anuclim.P14_PRECIPDRIESTPERIOD
+      - anuclim.P15_PRECIPSEASONALITY
+      - anuclim.P16_PRECIPWETTESTQUARTER
+      - anuclim.P17_PRECIPDRIESTQUARTER
+      - anuclim.P18_PRECIPWARMESTQUARTER
+      - anuclim.P19_PRECIPCOLDESTQUARTER
+      - anuclim.P1_ANNMEANTEMP
+      - anuclim.P2_MEANDIURNALRANGE
+      - anuclim.P3_ISOTHERMALITY
+      - anuclim.P4_TEMPSEASONALITY
+      - anuclim.P5_MAXTEMPWARMESTPERIOD
+      - anuclim.P6_MINTEMPCOLDESTPERIOD
+      - anuclim.P7_TEMPANNUALRANGE
+      - anuclim.P8_MEANTEMPWETTESTQUARTER
+      - anuclim.P9_MEANTEMPDRIESTQUARTER
+      - cf.CDD
+      - cf.CDDCOLDTT
+      - cf.CFD
+      - cf.CSU
+      - cf.CTMGETT
+      - cf.CTMGTTT
+      - cf.CTMLETT
+      - cf.CTMLTTT
+      - cf.CTNGETT
+      - cf.CTNGTTT
+      - cf.CTNLETT
+      - cf.CTNLTTT
+      - cf.CTXGETT
+      - cf.CTXGTTT
+      - cf.CTXLETT
+      - cf.CTXLTTT
+      - cf.CWD
+      - cf.DDGTTT
+      - cf.DDLTTT
+      - cf.DTR
+      - cf.ETR
+      - cf.FG
+      - cf.FXX
+      - cf.GD4
+      - cf.GDDGROWTT
+      - cf.HD17
+      - cf.HDDHEATTT
+      - cf.MAXDTR
+      - cf.PP
+      - cf.RH
+      - cf.SD
+      - cf.SDII
+      - cf.SS
+      - cf.TG
+      - cf.TMM
+      - cf.TMMAX
+      - cf.TMMEAN
+      - cf.TMMIN
+      - cf.TMN
+      - cf.TMX
+      - cf.TN
+      - cf.TNM
+      - cf.TNMAX
+      - cf.TNMEAN
+      - cf.TNMIN
+      - cf.TNN
+      - cf.TNX
+      - cf.TX
+      - cf.TXM
+      - cf.TXMAX
+      - cf.TXMEAN
+      - cf.TXMIN
+      - cf.TXN
+      - cf.TXX
+      - cf.VDTR
+      type: enum
+  help:
+    inputBinding:
+      position: 2
+      prefix: -h
+    type: boolean?
   input:
     type:
     - 'null'
     - inputBinding:
-        position: 1
+        position: 3
         prefix: -i
       items: string
       type: array
   output:
     inputBinding:
-      position: 2
+      position: 4
       prefix: -o
     type: string?
   verbose:
     inputBinding:
-      position: 3
+      position: 5
       prefix: -v
     type: None?
   dask_nthreads:
     inputBinding:
-      position: 4
+      position: 6
       prefix: --dask-nthreads
     type: None?
   dask_maxmem:
     inputBinding:
-      position: 5
+      position: 7
       prefix: --dask-maxmem
     type: string?
   chunks:
     inputBinding:
-      position: 6
+      position: 8
       prefix: --chunks
     type: string?
   engine:
     inputBinding:
-      position: 7
+      position: 9
       prefix: --engine
     type: string?
 outputs:
