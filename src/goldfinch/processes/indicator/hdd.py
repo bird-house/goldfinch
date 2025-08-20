@@ -1,6 +1,7 @@
 import click
 import warnings
 import xclim.cli
+import xclim.core.indicator
 
 """
 # Notes
@@ -20,7 +21,10 @@ The CLI's input is a path to a file, not a catalog item ID. There's a TODO below
 The CLI's output is a user input. We'll probably want to change this to a default output path.
 """
 
-class Cli(click.MultiCommand):
+# WARNING: this does not work,
+#  the click2cwl tool cannot be aware of subcommands, since they are not instantiated until invocation runtime
+#  however, the tool purposely avoids command invocation to avoid triggering the operations
+class Cli(click.Group):
     """Main cli class."""
 
     def list_commands(self, ctx):
@@ -37,12 +41,19 @@ class Cli(click.MultiCommand):
 
 
 @click.command(
-    cls=Cli,
-    chain=True,
+    #cls=Cli,
+    #chain=True,
     help="Command line tool to compute indices on netCDF datasets. Indicators are referred to by their "
     "(case-insensitive) identifier, as in xclim.core.indicator.registry.",
-    invoke_without_command=True,
+    #invoke_without_command=True,
 )
+@click.option(  # WARNING: click.argument(help='...') is not supported, but click2cwl requires an 'help'
+    "--indicator",
+    type=click.Choice(choices=list(xclim.core.indicator.registry)),
+    help="Indicator to compute.",
+    required=True,
+)
+@click.help_option("-h", "--help")  # place after "arguments" to transparently respect their position
 @click.option(
     "-i",
     "--input",
@@ -125,7 +136,7 @@ def cli(ctx, **kwargs):
     }
     ctx.obj = kwargs
 
-cli.result_callback()(click.pass_context(xclim.cli.write_file))
+#cli.result_callback()(click.pass_context(xclim.cli.write_file))
 
 
 if __name__ == "__main__":
