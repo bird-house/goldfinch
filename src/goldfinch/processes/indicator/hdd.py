@@ -1,6 +1,5 @@
 import click
 import warnings
-import xclim.cli
 import xclim.core.indicator
 
 """
@@ -21,31 +20,10 @@ The CLI's input is a path to a file, not a catalog item ID. There's a TODO below
 The CLI's output is a user input. We'll probably want to change this to a default output path.
 """
 
-# WARNING: this does not work,
-#  the click2cwl tool cannot be aware of subcommands, since they are not instantiated until invocation runtime
-#  however, the tool purposely avoids command invocation to avoid triggering the operations
-class Cli(click.Group):
-    """Main cli class."""
-
-    def list_commands(self, ctx):
-        """Return the available commands (other than the indicators)."""
-        return (
-            "heating_degree_days",
-        )
-
-    def get_command(self, ctx, cmd_name):
-        """Return the requested command."""
-        if cmd_name in self.list_commands(ctx):
-            command = xclim.cli._create_command(cmd_name)
-        return command
-
 
 @click.command(
-    #cls=Cli,
-    #chain=True,
     help="Command line tool to compute indices on netCDF datasets. Indicators are referred to by their "
     "(case-insensitive) identifier, as in xclim.core.indicator.registry.",
-    #invoke_without_command=True,
 )
 @click.option(  # WARNING: click.argument(help='...') is not supported, but click2cwl requires an 'help'
     "--indicator",
@@ -102,7 +80,7 @@ def cli(ctx, **kwargs):
         kwargs["input"] = kwargs["input"][0]
 
     if kwargs["dask_nthreads"] is not None:
-        if not distributed:
+        if not distributed:  # FIXME: undefined
             raise click.BadOptionUsage(
                 "dask_nthreads",
                 "Dask's distributed scheduler is not installed, only the "
@@ -116,7 +94,7 @@ def cli(ctx, **kwargs):
                 ctx,
             )
 
-        client = Client(
+        client = Client(  # FIXME: undefined
             n_workers=1,
             threads_per_worker=kwargs["dask_nthreads"],
             memory_limit=kwargs["dask_maxmem"],
@@ -135,8 +113,6 @@ def cli(ctx, **kwargs):
         "chunks": kwargs["chunks"] or {},
     }
     ctx.obj = kwargs
-
-#cli.result_callback()(click.pass_context(xclim.cli.write_file))
 
 
 if __name__ == "__main__":

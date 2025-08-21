@@ -67,9 +67,38 @@ def yaml_dump(data: dict[str, Any], *args: Any, **kwargs: Any) -> str:
     """
     Custom YAML dump function to ensure consistent formatting.
     """
-    represent_dict_order = lambda self, _data: self.represent_mapping("tag:yaml.org,2002:map", _data.items())
+    represent_dict_order = lambda self, _data: self.represent_mapping("tag:yaml.org,2002:map", dict(_data))
     yaml.add_representer(OrderedDict, represent_dict_order)
     return yaml.dump(data, *args, **kwargs)
+
+
+def resolve_cli_command(
+    process: str | None = None,
+    docker: str | None = None,
+    docker_module: str | None = None,
+    **_,
+) -> str:
+    """
+    Resolve the command line interface program call.
+
+    If running inside docker, patch the command with **installed** module or the overridden script/module reference.
+    Otherwise, employ the absolute path of the python script directly for local execution (not within docker).
+    """
+    if not docker:
+        return f"python {process}"
+
+    if docker_module and os.path.sep in str(docker_module):
+        return f"python {process}"
+
+    # allow directly invoking other modules if they are installed, or resolve current package
+    parent_mod_name = "goldfinch"
+    parent_module = f"{parent_mod_name}{os.path.sep}"
+    docker_module = docker_module or process
+    if f"{os.path.sep}{parent_module}" in docker_module or docker_module.startswith(parent_module):
+        docker_module = docker_module.rstrip(".py").rsplit(parent_module, 1)[-1].replace(os.path.sep, ".")
+        docker_module = f"{parent_mod_name}.{docker_module}"
+
+    return f"python -m {docker_module}"
 
 
 @click.command(
@@ -184,7 +213,7 @@ def main(ctx: click.Context, **kwargs: str) -> None:
     """
     # resolve the module containing the Click command
     cli_file = kwargs["process"]
-    cli_path = os.path.abspath(cli_file)
+    cli_path = kwargs["process"] = os.path.abspath(cli_file)
     cli_spec = importlib.util.spec_from_file_location("click2cwl.program", cli_path)
     sys.modules["click2cwl.program"] = cli_spec  # type: ignore
     cli_mod = importlib.util.module_from_spec(cli_spec)
@@ -204,7 +233,7 @@ def main(ctx: click.Context, **kwargs: str) -> None:
             f"Use the --command option to specify a specific one to convert or make sure the module defines one."
         )
     cli_name, cli_cmd = click_functions[0]
-    cli_prog_call = f"python {cli_file}"
+    cli_prog_call = resolve_cli_command(**kwargs)
 
     # add context arguments to generate the CWL contents
     cli_ctx = cli_cmd.context_class(info_name=cli_prog_call, command=cli_cmd)

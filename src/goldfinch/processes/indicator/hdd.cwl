@@ -2,7 +2,7 @@ $namespaces:
   s: https://schema.org/
 $schemas:
 - http://schema.org/version/9.0/schemaorg-current-http.rdf
-baseCommand: python /home/francis/dev/goldfinch/src/goldfinch/processes/indicator/hdd.py
+baseCommand: python -m goldfinch.processes.indicator.hdd
 class: CommandLineTool
 cwlVersion: v1.2
 hints:
@@ -10,12 +10,37 @@ hints:
     dockerPull: ghcr.io/bird-house/goldfinch:0.1.0
 id: hdd
 inputs:
+  chunks:
+    inputBinding:
+      position: 8
+      prefix: --chunks
+    type: string?
+  dask_maxmem:
+    inputBinding:
+      position: 7
+      prefix: --dask-maxmem
+    type: string?
+  dask_nthreads:
+    inputBinding:
+      position: 6
+      prefix: --dask-nthreads
+    type: None?
+  engine:
+    inputBinding:
+      position: 9
+      prefix: --engine
+    type: string?
+  help:
+    inputBinding:
+      position: 2
+      prefix: -h
+    type: boolean?
   indicator:
     inputBinding:
       position: 1
       prefix: --indicator
     type:
-    - symbols: !!python/tuple
+    - symbols:
       - HUMIDEX
       - HEAT_INDEX
       - TG
@@ -353,11 +378,6 @@ inputs:
       - cf.TXX
       - cf.VDTR
       type: enum
-  help:
-    inputBinding:
-      position: 2
-      prefix: -h
-    type: boolean?
   input:
     type:
     - 'null'
@@ -376,26 +396,6 @@ inputs:
       position: 5
       prefix: -v
     type: None?
-  dask_nthreads:
-    inputBinding:
-      position: 6
-      prefix: --dask-nthreads
-    type: None?
-  dask_maxmem:
-    inputBinding:
-      position: 7
-      prefix: --dask-maxmem
-    type: string?
-  chunks:
-    inputBinding:
-      position: 8
-      prefix: --chunks
-    type: string?
-  engine:
-    inputBinding:
-      position: 9
-      prefix: --engine
-    type: string?
 outputs:
   results:
     outputBinding:
