@@ -37,7 +37,21 @@ install:
 	@echo "Installing dependencies..."
 	@pip install ".[processes]"
 
+.PHONY: install-dev
+install-dev: install
+	@echo "Installing development dependencies..."
+	@pip install ".[dev,processes]"
+
+.PHONY: test-ony
+test-only:
+	@echo "Running tests..."
+	@pytest "$(APP_ROOT)"
+
+.PHONY: test
+test: install-dev test-only
+
 # For each Python file, generate the corresponding CWL file
+# Will only run modified Python files by default
 %.cwl: %.py
 	@echo "Generating CWL for [$<]..."
 	click2cwl \
@@ -52,6 +66,10 @@ cwl-generate-only: $(CWL_CLI_OUTPUTS)
 
 .PHONY: cwl-generate
 cwl-generate: cwl-generate-only | install
+
+.PHONY: cwl-generate-all
+cwl-generate-all:
+	$(MAKE) $(foreach file,$(CWL_CLI_SOURCES),-W $(file)) cwl-generate-only
 
 .PHONY: docker-build
 docker-build:

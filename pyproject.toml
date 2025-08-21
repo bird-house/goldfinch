@@ -35,3 +35,17 @@ processes = [
     "xclim",
     "h5netcdf",
 ]
+dev = [
+    "pytest",
+    "pytest-cov",
+]
+
+[tool.pytest]
+addopts = [
+    "--cov=goldfinch",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+]
+testpaths = [
+    "tests",
+]
