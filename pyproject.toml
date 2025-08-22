@@ -17,7 +17,7 @@ dependencies = [
     "click-option-group",
     # Temporarily use fork until PR is merged upstream (https://github.com/Terradue/click2cwl/pull/4)
     # "click2cwl @ git+https://github.com/Terradue/click2cwl"
-    "click2cwl @ git+https://github.com/Terradue/click2cwl.git#egg=fix-path-not-dir"
+    "click2cwl==0.4.0",
 ]
 
 [project.scripts]
