@@ -118,7 +118,6 @@ def resolve_cli_command(
     "-c", "--command",
     metavar="COMMAND",
     default=None,
-    type=click.Path(exists=True, dir_okay=False),
     help="If the python script defines multiple commands, this can be used to specify which one to convert.",
 )
 @click.option(
@@ -229,12 +228,13 @@ def main(ctx: click.Context, **kwargs: str) -> None:
     cli_spec.loader.exec_module(cli_mod)
 
     # find the decorated Click function to convert
-    click_functions = [
-        (name, member)
-        for name, member in
-        inspect.getmembers(cli_mod)
-        if (not name.startswith("_") or kwargs["command"] == name) and isinstance(member, click.Command)
-    ]
+    click_functions = []
+    for name, member in inspect.getmembers(cli_mod):
+        if isinstance(member, click.Command) and not name.startswith("_"):
+            if kwargs["command"] and kwargs["command"] != name:
+                continue
+            click_functions.append((name, member))
+
     if len(click_functions) != 1:
         names = [name for name, _ in click_functions]
         raise ValueError(
