@@ -121,6 +121,48 @@ def resolve_cli_command(
     help="If the python script defines multiple commands, this can be used to specify which one to convert.",
 )
 @click.option(
+    "--exclude-help",
+    is_flag=True,
+    help=(
+         "Exclude the '-h/--help' option (if any) typically added by '@click.help_option()' "
+         "from the process/command to avoid it being included as CWL input parameter. "
+         "Ignored if no such option is found in the referenced Click command."
+    )
+)
+@click.option(
+    "--exclude-version",
+    is_flag=True,
+    help=(
+         "Exclude the '--version' option (if any) typically added by '@click.version_option()' "
+         "from the process/command to avoid it being included as CWL input parameter. "
+         "Ignored if no such option is found in the referenced Click command. "
+    )
+)
+@click.option(
+    "--exclude-deprecated",
+    is_flag=True,
+    help=(
+         "Exclude all options (if any) marked as deprecated (i.e.: with 'click.Option(..., deprecated=True)') "
+         "from the process/command to avoid them being included as CWL input parameters. "
+         "Ignored if no such option is found in the referenced Click command. "
+    )
+)
+@click.option(
+    "--exclude-option",
+    help=(
+         "Exclude a named option from the process/command to avoid it being included as CWL input parameter. "
+         "The specified option must be *optional* (i.e.: prefixed with '--', no required flag or defines a default). "
+         "Required parameters will be refused to ensure the CWL definition remains consistent with the tool. "
+         "The provided option name is case sensitive and should omit the '--' prefix. "
+         "For convenience, underscores ('_') and dashes ('-') will be handled interchangeably. "
+         "Ignored if no option matching the name is found in the referenced Click command. "
+         "Can be repeated multiple times for multiple options to exclude. "
+         "See also '--exclude-help', '--exclude-version' and '--exclude-deprecated' "
+         "for more specific handling of these special definitions."
+    ),
+    multiple=True,
+)
+@click.option(
     "-o", "--output",
     type=click.Path(exists=False, dir_okay=False),
     is_flag=False,
@@ -243,6 +285,31 @@ def main(ctx: click.Context, **kwargs: str) -> None:
         )
     cli_name, cli_cmd = click_functions[0]
     cli_prog_call = resolve_cli_command(**kwargs)
+
+    # cleanup extra options as requested
+    for remove_option in ["exclude_version", "exclude_help", "exclude_deprecated"]:
+        if kwargs.get(remove_option):
+            name = remove_option.replace("exclude_", "")
+            for i, param in reversed(list(enumerate(cli_cmd.params))):  # reversed to avoid index issues when deleting
+                if (
+                    param.param_type_name == "option" and (
+                        (param.name == name and param.is_flag and param.is_bool_flag and not param.expose_value) or
+                        (name == "deprecated" and param.deprecated)
+                    )
+                ):
+                    del cli_cmd.params[i]
+                    if name != "deprecated":
+                        break
+    for remove_option in kwargs.get("exclude_option") or []:
+        for i, param in reversed(list(enumerate(cli_cmd.params))):  # reversed to avoid index issues when deleting
+            name = remove_option.replace("-", "_")
+            if param.param_type_name == "option" and param.name == name:
+                if param.required:
+                    raise click.UsageError(
+                        f"Parameter '{remove_option}' is required. Cannot exclude it from the command.",
+                    )
+                del cli_cmd.params[i]
+                break
 
     # add context arguments to generate the CWL contents
     cli_ctx = cli_cmd.context_class(info_name=cli_prog_call, command=cli_cmd)
