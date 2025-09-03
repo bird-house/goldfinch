@@ -51,12 +51,12 @@ class FlagPath(click.Path):
         return super().convert(value, param, ctx)
 
 
-class MetadataParam(click.types.StringParamType):
+class FieldValueParam(click.types.StringParamType):
     def convert(self, value: str, param: Parameter | None, ctx: Context | None) -> str:
         args = value.split("=", 1)
         if len(args) != 2 or not args[0].strip() or not args[1].strip():
             raise click.BadParameter(
-                "Metadata must be specified as '<field>=<value>'",
+                "Option must be specified as '<field>=<value>'",
                 param=param,
                 ctx=ctx,
             )
@@ -146,12 +146,21 @@ def resolve_cli_command(
          "General metadata for the CWL document defined as '<field>=<value>' for each entry. "
          f"Can be repeated for multiple metadata field properties {CWL_METADATA_FIELDS}."
     ),
-    type=MetadataParam(),
+    type=FieldValueParam(),
     multiple=True,
 )
 @click.option(
     "--docker",
     help="Specific docker image to use for the CWL command line tool.",
+)
+@click.option(
+    "-e", "--env",
+    help=(
+        "Specific environment variables and values required by the CWL command line tool. "
+        "Can be repeated for multiple '<variable>=<value>' combinations."
+    ),
+    type=FieldValueParam(),
+    multiple=True,
 )
 @click.option(
     "--coresMin", "coresMin",
@@ -249,7 +258,7 @@ def main(ctx: click.Context, **kwargs: str) -> None:
         output_cwl = kwargs["output"]
 
     # add additional parameters to the CWL context
-    for req in ["docker", "wall-time", "coresMin", "coresMax", "ramMin", "ramMax", "metadata", "cwl-version"]:
+    for req in ["docker", "env", "wall-time", "coresMin", "coresMax", "ramMin", "ramMax", "metadata", "cwl-version"]:
         val = kwargs.get(req) or kwargs.get(req.replace("-", "_"))
         if val:
             val = [val] if isinstance(val, str) else val
