@@ -1,0 +1,67 @@
+# run test suites
+
+name: Tests
+on:
+  - pull_request
+  - push
+  - release
+  - workflow_dispatch
+
+# cancel the current workflow if another commit was pushed on the same PR or reference
+# uses the GitHub workflow name to avoid collision with other workflows running on the same PR/reference
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # see: https://github.com/fkirc/skip-duplicate-actions
+  skip_duplicate:
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    outputs:
+      should_skip: ${{ steps.skip_duplicate.outputs.should_skip && ! contains(github.ref, 'refs/tags') && ! contains(github.ref, 'refs/heads/main') }}
+    steps:
+      - uses: fkirc/skip-duplicate-actions@master
+        with:
+          concurrent_skipping: "same_content_newer"
+          skip_after_successful_duplicate: "true"
+          cancel_others: "true"
+          do_not_skip: '["workflow_dispatch", "schedule", "release"]'
+
+  # see: https://github.com/actions/setup-python
+  tests:
+    needs: skip_duplicate
+    if: ${{ needs.skip_duplicate.outputs.should_skip != 'true' }}
+    runs-on: ${{ matrix.os }}
+    continue-on-error: false
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+        test-case: ["test-only"]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: "0"
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "${{ matrix.python-version }}"
+          cache: 'pip'
+      - name: Parse Python Version
+        id: python-semver
+        run: |
+          echo "::set-output name=major:$(echo ${{ matrix.python-version }} | cut -d '.' -f 1)"
+          echo "::set-output name=minor:$(echo ${{ matrix.python-version }} | cut -d '.' -f 2)"
+      - name: Install Dependencies
+        run: make install-dev
+      - name: Display Packages
+        run: |
+          pip freeze
+          make info
+      - name: Display Environment Variables
+        run: |
+          hash -r
+          env | sort
+      - name: Run Tests
+        run: make ${{ matrix.test-case }}

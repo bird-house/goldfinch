@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=78.1.1", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "goldfinch"
+version = "0.1.0"
+description = "Climate service processes defined through CWL."
+authors = [
+    { name = "Francis Charette-Migneault", email = "francis.charette-migneault@crim.ca" }
+]
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+dependencies = [
+    "click",
+    "click-option-group",
+    # Temporarily use fork until PR is merged upstream (https://github.com/Terradue/click2cwl/pull/4)
+    # "click2cwl @ git+https://github.com/Terradue/click2cwl"
+    "click2cwl==0.4.0",
+]
+
+[project.scripts]
+click2cwl = "goldfinch.utils.click2cwl_cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.optional-dependencies]
+# any additional dependencies needed by underlying processes
+# this is only to facilitate installation "all-in-one"
+processes = [
+    "clisops",
+    "geopandas",
+    "xclim",
+    "h5netcdf",
+]
+dev = [
+    "pytest",
+    "pytest-cov",
+]
+
+[tool.pytest]
+addopts = [
+    "--cov=goldfinch",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+]
+testpaths = [
+    "tests",
+]
