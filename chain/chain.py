@@ -5,6 +5,14 @@ import xarray as xr
 import xclim
 
 
+"""
+This CLI demonstrates a workflow where commands can be called individually
+or chained together in memory. That is, each individual command accepts and
+returns an xarray.Dataset. The `click.group` is responsible for readingin the
+input data from disk, and writing the output data to disk.
+"""
+
+
 @click.group(chain=True, help="Chained CLI", invoke_without_command=True)
 @click.argument("input", type=click.File("r"))
 @click.argument("output")
@@ -13,14 +21,17 @@ def cli(input, output):
 
 @cli.result_callback()
 def process_pipeline(processors, input, output):
-    click.echo(f"INPUT: {input.name}")
-    click.echo(f"OUTPUT: {output}")
+    """Read the input, execute commands in memory, write output to disk."""
+    # Read the input data into an xarray.Dataset
     ds = xr.open_dataset(input.name, engine="h5netcdf")
 
+    # Execute individual commands - not obvious here, but options are passed
     for processor in processors:
         ds = processor(ds)
 
+    # Write output to disk
     ds.to_netcdf(output, engine="h5netcdf")
+
 
 @cli.command
 @click.option("-p", "--poly", help="Path to the polygon shapefile.")
@@ -34,7 +45,6 @@ def subset(**kwargs):
     """Subset on polygon"""
     def processor(ds):
         gdf = gpd.GeoDataFrame.from_file(kwargs["poly"])
-        # buffer = kwargs["buffer"]
         return clisops.core.subset_shape(ds=ds, 
                                          shape=gdf, 
                                          start_date=kwargs["start"], 
