@@ -2,6 +2,11 @@ import click
 import warnings
 import xclim.cli
 
+try:
+    from dask.distributed import Client, distributed
+except ImportError:
+    pass
+
 """
 # Notes
 
