@@ -163,7 +163,7 @@ def resolve_cli_command(
     multiple=True,
 )
 @click.option(
-    "-o", "--output",
+    "-o", "--output-cwl", "output_cwl",
     type=click.Path(exists=False, dir_okay=False),
     is_flag=False,
     help=(
@@ -322,7 +322,7 @@ def main(ctx: click.Context, **kwargs: str) -> None:
     elif "cwl_type" in kwargs:
         cli_ctx.args.extend(["--dump", kwargs["cwl_type"]])
     if kwargs.get("output"):
-        output_cwl = kwargs["output"]
+        output_cwl = kwargs["output_cwl"]
 
     # add additional parameters to the CWL context
     for req in ["docker", "env", "wall-time", "coresMin", "coresMax", "ramMin", "ramMax", "metadata", "cwl-version"]:

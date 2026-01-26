@@ -7,7 +7,8 @@ name = "goldfinch"
 version = "0.1.0"
 description = "Climate service processes defined through CWL."
 authors = [
-    { name = "Francis Charette-Migneault", email = "francis.charette-migneault@crim.ca" }
+    { name = "Francis Charette-Migneault", email = "francis.charette-migneault@crim.ca" },
+    { name = "David Huard", email = "huard.david@ouranos.ca" },
 ]
 readme = "README.md"
 requires-python = ">=3.10"
@@ -15,8 +16,6 @@ license = "Apache-2.0"
 dependencies = [
     "click",
     "click-option-group",
-    # Temporarily use fork until PR is merged upstream (https://github.com/Terradue/click2cwl/pull/4)
-    # "click2cwl @ git+https://github.com/Terradue/click2cwl"
     "click2cwl==0.4.0",
 ]
 
