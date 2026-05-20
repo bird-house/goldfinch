@@ -35,9 +35,9 @@ def subset(**kwargs):
     def processor(ds):
         gdf = gpd.GeoDataFrame.from_file(kwargs["poly"])
         # buffer = kwargs["buffer"]
-        return clisops.core.subset_shape(ds=ds, 
-                                         shape=gdf, 
-                                         start_date=kwargs["start"], 
+        return clisops.core.subset_shape(ds=ds,
+                                         shape=gdf,
+                                         start_date=kwargs["start"],
                                          end_date=kwargs["end"]
                                         )
 
@@ -49,7 +49,7 @@ def subset(**kwargs):
 def hdd(**kwargs):
     """Heating degree days"""
     def processor(ds):
-        return xclim.atmos.heating_degree_days(ds["tas"], 
+        return xclim.atmos.heating_degree_days(ds["tas"],
                                                thresh=kwargs["thresh"]
                                                )
 

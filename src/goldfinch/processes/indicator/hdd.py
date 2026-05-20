@@ -10,15 +10,15 @@ except ImportError:
 """
 # Notes
 
-Based on xclim's CLI, which uses click.MultiCommand (recently deprecated in favor of click.Group). 
+Based on xclim's CLI, which uses click.MultiCommand (recently deprecated in favor of click.Group).
 
-Click 
+Click
 
-Dask-related options are copied from xclim but have not been tested and 
+Dask-related options are copied from xclim but have not been tested and
 would require adding dependencies to the environment.
 
-The only netCDF engine installed in the environment is h5netcdf, so the option to switch 
-to another engine would not work in this env. 
+The only netCDF engine installed in the environment is h5netcdf, so the option to switch
+to another engine would not work in this env.
 
 The CLI's input is a path to a file, not a catalog item ID. There's a TODO below about this.
 

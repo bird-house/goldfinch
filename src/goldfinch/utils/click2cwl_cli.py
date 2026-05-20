@@ -22,7 +22,6 @@ from click2cwl.metadata import WorkflowMetadata
 from click2cwl.paramexport import ParamExport
 from click_option_group import optgroup, MutuallyExclusiveOptionGroup
 
-
 CWL_METADATA_FIELDS_EXTRAS = ["cwlVersion", "doc", "label", "id"]
 CWL_METADATA_FIELDS_AUTO = ["version", "author", "organization"]
 CWL_METADATA_FIELDS = CWL_METADATA_FIELDS_EXTRAS + CWL_METADATA_FIELDS_AUTO
@@ -67,7 +66,9 @@ def yaml_dump(data: dict[str, Any], *args: Any, **kwargs: Any) -> str:
     """
     Custom YAML dump function to ensure consistent formatting.
     """
-    represent_dict_order = lambda self, _data: self.represent_mapping("tag:yaml.org,2002:map", dict(_data))
+    def represent_dict_order(dumper: Any, ordered_data: OrderedDict[Any, Any]) -> Any:
+        return dumper.represent_mapping("tag:yaml.org,2002:map", dict(ordered_data))
+
     yaml.add_representer(OrderedDict, represent_dict_order)
     return yaml.dump(data, *args, **kwargs)
 
@@ -124,41 +125,41 @@ def resolve_cli_command(
     "--exclude-help",
     is_flag=True,
     help=(
-         "Exclude the '-h/--help' option (if any) typically added by '@click.help_option()' "
-         "from the process/command to avoid it being included as CWL input parameter. "
-         "Ignored if no such option is found in the referenced Click command."
+        "Exclude the '-h/--help' option (if any) typically added by '@click.help_option()' "
+        "from the process/command to avoid it being included as CWL input parameter. "
+        "Ignored if no such option is found in the referenced Click command."
     )
 )
 @click.option(
     "--exclude-version",
     is_flag=True,
     help=(
-         "Exclude the '--version' option (if any) typically added by '@click.version_option()' "
-         "from the process/command to avoid it being included as CWL input parameter. "
-         "Ignored if no such option is found in the referenced Click command. "
+        "Exclude the '--version' option (if any) typically added by '@click.version_option()' "
+        "from the process/command to avoid it being included as CWL input parameter. "
+        "Ignored if no such option is found in the referenced Click command. "
     )
 )
 @click.option(
     "--exclude-deprecated",
     is_flag=True,
     help=(
-         "Exclude all options (if any) marked as deprecated (i.e.: with 'click.Option(..., deprecated=True)') "
-         "from the process/command to avoid them being included as CWL input parameters. "
-         "Ignored if no such option is found in the referenced Click command. "
+        "Exclude all options (if any) marked as deprecated (i.e.: with 'click.Option(..., deprecated=True)') "
+        "from the process/command to avoid them being included as CWL input parameters. "
+        "Ignored if no such option is found in the referenced Click command. "
     )
 )
 @click.option(
     "--exclude-option",
     help=(
-         "Exclude a named option from the process/command to avoid it being included as CWL input parameter. "
-         "The specified option must be *optional* (i.e.: prefixed with '--', no required flag or defines a default). "
-         "Required parameters will be refused to ensure the CWL definition remains consistent with the tool. "
-         "The provided option name is case sensitive and should omit the '--' prefix. "
-         "For convenience, underscores ('_') and dashes ('-') will be handled interchangeably. "
-         "Ignored if no option matching the name is found in the referenced Click command. "
-         "Can be repeated multiple times for multiple options to exclude. "
-         "See also '--exclude-help', '--exclude-version' and '--exclude-deprecated' "
-         "for more specific handling of these special definitions."
+        "Exclude a named option from the process/command to avoid it being included as CWL input parameter. "
+        "The specified option must be *optional* (i.e.: prefixed with '--', no required flag or defines a default). "
+        "Required parameters will be refused to ensure the CWL definition remains consistent with the tool. "
+        "The provided option name is case sensitive and should omit the '--' prefix. "
+        "For convenience, underscores ('_') and dashes ('-') will be handled interchangeably. "
+        "Ignored if no option matching the name is found in the referenced Click command. "
+        "Can be repeated multiple times for multiple options to exclude. "
+        "See also '--exclude-help', '--exclude-version' and '--exclude-deprecated' "
+        "for more specific handling of these special definitions."
     ),
     multiple=True,
 )
@@ -184,8 +185,8 @@ def resolve_cli_command(
 @click.option(
     "-m", "--metadata",
     help=(
-         "General metadata for the CWL document defined as '<field>=<value>' for each entry. "
-         f"Can be repeated for multiple metadata field properties {CWL_METADATA_FIELDS}."
+        "General metadata for the CWL document defined as '<field>=<value>' for each entry. "
+        f"Can be repeated for multiple metadata field properties {CWL_METADATA_FIELDS}."
     ),
     type=FieldValueParam(),
     multiple=True,
