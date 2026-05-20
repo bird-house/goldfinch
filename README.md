@@ -2,6 +2,12 @@
 
 Climate service processes defined through CWL.
 
+- [Setup and Development](#setup-and-development)
+- [Usage Commands](#usage-commands)
+- [Examples](#examples)
+  - [CWL CommandLineTool Generation from Python Click CLI](#cwl-commandlinetool-generation-from-python-click-cli)
+- [License](./LICENSE)
+
 ## Setup and Development
 
 For quick setup only with specific CWL dependencies, install the package as follows.
@@ -55,4 +61,218 @@ and with all input requirements met:
 
 ```shell
 cwltool <path/to/output.cwl> <path/to/job-params.yml>
+```
+
+## Examples
+
+### CWL CommandLineTool Generation from Python Click CLI
+
+Using the example CLI for [`poly_subset`](src/goldfinch/processes/subset/poly_subset.py).
+
+Generate the CWL `CommandLineTool` definition in YAML format to standard output.
+Note that additional metadata can be provided using `-m` options, which will be mapped to corresponding CWL
+schema fields if available.
+
+```shell
+click2cwl \
+  -p "src/goldfinch/processes/subset/poly_subset.py" \
+  -m "id=poly_subset" \
+  -m "author=fmigneault" \
+  -m "version=1.0" \
+  --cwl-version "v1.2"
+```
+`
+Will produce the following output:
+
+```yaml
+$namespaces:
+  s: https://schema.org/
+$schemas:
+- http://schema.org/version/9.0/schemaorg-current-http.rdf
+baseCommand: python /home/chamigfr/dev/goldfinch/src/goldfinch/processes/subset/poly_subset.py
+class: CommandLineTool
+cwlVersion: v1.2
+id: poly_subset
+inputs:
+  buffer:
+    inputBinding:
+      position: 5
+      prefix: -b
+    type: None?
+  end:
+    inputBinding:
+      position: 7
+      prefix: -e
+    type: string?
+  first_level:
+    inputBinding:
+      position: 8
+      prefix: -f
+    type: string?
+  help:
+    inputBinding:
+      position: 1
+      prefix: -h
+    type: boolean?
+  input:
+    inputBinding:
+      position: 2
+      prefix: -i
+    type: string?
+  last_level:
+    inputBinding:
+      position: 9
+      prefix: -l
+    type: string?
+  output:
+    inputBinding:
+      position: 3
+      prefix: -o
+    type: File?
+  poly:
+    inputBinding:
+      position: 4
+      prefix: -p
+    type: File?
+  start:
+    inputBinding:
+      position: 6
+      prefix: -s
+    type: string?
+  verbose:
+    inputBinding:
+      position: 10
+      prefix: -v
+    type: None?
+outputs:
+  results:
+    outputBinding:
+      glob: .
+    type: Directory
+requirements:
+  EnvVarRequirement:
+    envDef: {}
+  ResourceRequirement: {}
+s:author:
+- class: s:Person
+  s:name: fmigneault
+s:softwareVersion: '1.0'
+stderr: std.err
+stdout: std.out
+```
+
+
+### Reusing a Click interface for multiple CommandLineTool CWL definitions
+
+Using the example CLI [`indicator`](src/goldfinch/processes/indicator/hdd.py), which can employ `heating_degree_days` 
+based on [`xclim.indicators.atmos.heating_degree_days`](https://xclim.readthedocs.io/en/stable/api_indicators.html#xclim.indicators.atmos.heating_degree_days),
+amongst *multiple indicators* based on `xclim`'s registry. The `click` definition is defined as a generic interface
+that takes any available `indicator` parameter. However, we can define a *specific* CWL `CommandLineTool` for
+`heating_degree_days` by enforcing the `indicator` value, which is necessary to provide distinct CWL metadata and
+process definitions for corresponding indicators.
+
+The following demonstrates the generic definition, which will contain all `indicator` options as the CWL `enum` symbols.
+
+```shell
+click2cwl \
+    -p "src/goldfinch/processes/indicator/hdd.py" \
+    --exclude-help \
+    --exclude-version \
+    --cwl-version "v1.2" \
+    --docker "birdhouse/goldfinch:0.1.0" \
+    --env "TEST=VALUE"
+```
+
+Will produce the following output:
+
+```yaml
+$namespaces:
+  s: https://schema.org/
+$schemas:
+- http://schema.org/version/9.0/schemaorg-current-http.rdf
+baseCommand: python -m goldfinch.processes.indicator.hdd
+class: CommandLineTool
+cwlVersion: v1.2
+hints:
+  DockerRequirement:
+    dockerPull: birdhouse/goldfinch:0.1.0
+id: clt  # NOTE: default ID; can be customized with -m option
+inputs:
+  chunks:
+    inputBinding:
+      position: 7
+      prefix: --chunks
+    type: string?
+  dask_maxmem:
+    inputBinding:
+      position: 6
+      prefix: --dask-maxmem
+    type: string?
+  dask_nthreads:
+    inputBinding:
+      position: 5
+      prefix: --dask-nthreads
+    type: None?
+  engine:
+    inputBinding:
+      position: 8
+      prefix: --engine
+    type: string?
+  indicator:
+    inputBinding:
+      position: 1
+      prefix: --indicator
+    type:
+    - symbols: [HUMIDEX, HEAT_INDEX, MEAN_TEMPERATURE_FROM_MAX_AND_MIN, ...]  # note truncated for brevity
+      type: enum
+  input:
+    type:
+    - 'null'
+    - inputBinding:
+        position: 2
+        prefix: -i
+      items: string
+      type: array
+  output:
+    inputBinding:
+      position: 3
+      prefix: -o
+    type: string?
+  verbose:
+    inputBinding:
+      position: 4
+      prefix: -v
+    type: None?
+outputs:
+  results:
+    outputBinding:
+      glob: .
+    type: Directory
+requirements:
+  EnvVarRequirement:
+    envDef:
+      TEST: VALUE
+  ResourceRequirement: {}
+stderr: std.err
+stdout: std.out
+```
+
+Instead, the following command can be used to generate a specific CWL `CommandLineTool` for
+the `heating_degree_days` indicator, by passing it explicitly to the underlying CLI definition.
+To avoid argument ambiguity, the `--` separator is used to distinguish between `click2cwl` options
+and those of the underlying CLI process. 
+
+Note that the `-m id=heating_degree_days` option is used for consistency in the generated CWL `id` field.
+
+```shell
+click2cwl \
+    -p "src/goldfinch/processes/indicator/hdd.py" \
+    --exclude-help \
+    --exclude-version \
+    --cwl-version "v1.2" \
+    --docker "birdhouse/goldfinch:0.1.0" \
+    --env "TEST=VALUE" \
+    -m "id=heating_degree_days" \
+    -- \
+    --indicator "heating_degree_days"
 ```
