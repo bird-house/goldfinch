@@ -22,8 +22,13 @@ help:
 	@echo "  help               - Show this help message"
 	@echo "  info               - Display computed variables"
 	@echo "  install            - Install dependencies"
-	@echo "  cwl-generate       - Generate CWL files from Python processes"
+	@echo "  install-dev        - Install development dependencies"
+	@echo "  test-only          - Run tests"
+	@echo "  test               - Install dev dependencies and run tests"
 	@echo "  cwl-generate-only  - Generate CWL files without installing dependencies"
+	@echo "  cwl-generate       - Install dependencies and generate CWL files"
+	@echo "  cwl-generate-all   - Force regeneration of all CWL files"
+	@echo "  docker-build       - Build Docker image"
 
 .PHONY: info
 info:
@@ -42,7 +47,7 @@ install-dev: install
 	@echo "Installing development dependencies..."
 	@pip install ".[dev,processes]"
 
-.PHONY: test-ony
+.PHONY: test-only
 test-only:
 	@echo "Running tests..."
 	@pytest "$(APP_ROOT)"

@@ -4,7 +4,7 @@ from click.testing import CliRunner
 import xarray as xr
 import numpy as np
 from xclim.testing.helpers import test_timeseries as tt
-from poly_subset import cli
+from goldfinch.processes.subset.poly_subset import cli
 
 
 @pytest.fixture
@@ -43,4 +43,3 @@ def test_poly_subset(tas_series, tmp_path):
     assert out.time.isel(time=-1) == np.datetime64("2000-08-31T00:00:00")
     assert len(out.tas.lon) == 1
     assert len(out.tas.lat) == 1
-

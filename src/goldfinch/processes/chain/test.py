@@ -4,7 +4,7 @@ from click.testing import CliRunner
 import xarray as xr
 import numpy as np
 from xclim.testing.helpers import test_timeseries as tt
-from chain import cli
+from goldfinch.processes.chain.chain import cli
 
 
 @pytest.fixture
@@ -21,20 +21,20 @@ def test_chain(tas_series, tmp_path):
     tas.lon.attrs["standard_name"] = "longitude"
     tas.lat.attrs["standard_name"] = "latitude"
     ds = xr.Dataset(data_vars={"tas": tas})
-    
+
     input_file = tmp_path / "in.nc"
     ds.to_netcdf(input_file, engine="h5netcdf")
 
     output_file = tmp_path / "out.nc"
-    args = [str(input_file), 
+    args = [str(input_file),
             str(output_file),
-            "subset", 
+            "subset",
             "-p", "small_geojson.json",
-            "hdd", 
+            "hdd",
             "--thresh", "17 degC"]
     runner = CliRunner()
     results = runner.invoke(cli, args)
-    
+
     assert results.exit_code == 0
 
     if output_file.exists():

@@ -3,6 +3,9 @@
 Climate service processes defined through CWL.
 
 - [Setup and Development](#setup-and-development)
+- [Project Structure](#project-structure)
+  - [Processes Layout](#processes-layout)
+  - [Testing Layout](#testing-layout)
 - [Usage Commands](#usage-commands)
 - [Examples](#examples)
   - [CWL CommandLineTool Generation from Python Click CLI](#cwl-commandlinetool-generation-from-python-click-cli)
@@ -26,6 +29,58 @@ Otherwise, the following command can be used to install *all* dependencies acros
 ```shell
 pip install -e ".[processes]"
 ```
+
+## Project Structure
+
+A minimal overview of the main directories:
+
+```text
+goldfinch/
+├── src/goldfinch/processes/
+│   ├── chain/
+│   │   ├── chain.py
+│   │   └── test.py
+│   ├── indicator/
+│   │   ├── hdd.py
+│   │   └── test.py
+│   └── subset/
+│       ├── poly_subset.py
+│       └── test.py
+├── tests/
+│   └── ... generic/shared unit tests
+├── docker/
+│   └── Dockerfile
+└── ... project configuration and tooling files
+```
+
+### Processes Layout
+
+Each process is a standalone Click CLI module within `src/goldfinch/processes/<process-name>/`.
+Processes are directly convertible to CWL definitions using `click2cwl` (see [Usage Commands](#usage-commands) below).
+
+### Docker Packaging
+
+The project includes a [`docker/Dockerfile`](./docker/Dockerfile) for containerized deployment.
+Process CLIs can specify Docker container requirements when generating CWL definitions using the `--docker` option
+with `click2cwl`, ensuring reproducible execution environments.
+
+>![NOTE]
+>
+> All Python dependencies are defined centrally in [`pyproject.toml`](./pyproject.toml)
+> under `dependencies` and `processes` extras. The [`docker/Dockerfile`](./docker/Dockerfile) installs the
+> full project via `make install`, making all process dependencies available in the container.
+>
+> Per-process `environment.yml` files (if present) are **documentation only** and are not used by the Docker build
+> or deployment. They serve as reference for developers about which dependencies are relevant to each process.
+
+### Testing Layout
+
+The [`tests/`](./tests/) directory contains generic/shared tests for common functionality.
+
+Each [process subdirectory](./src/goldfinch/processes) includes a local `test.py`
+that demonstrates contextual CLI usage of that process.
+Those local `test.py` files are also executed as part of validation (i.e.: `make test` and GitHub CI/CD),
+not only documentation and examples. These tests can help users and AI figure out how to employ them.
 
 ## Usage Commands
 
@@ -164,7 +219,7 @@ stdout: std.out
 
 ### Reusing a Click interface for multiple CommandLineTool CWL definitions
 
-Using the example CLI [`indicator`](src/goldfinch/processes/indicator/hdd.py), which can employ `heating_degree_days` 
+Using the example CLI [`indicator`](src/goldfinch/processes/indicator/hdd.py), which can employ `heating_degree_days`
 based on [`xclim.indicators.atmos.heating_degree_days`](https://xclim.readthedocs.io/en/stable/api_indicators.html#xclim.indicators.atmos.heating_degree_days),
 amongst *multiple indicators* based on `xclim`'s registry. The `click` definition is defined as a generic interface
 that takes any available `indicator` parameter. However, we can define a *specific* CWL `CommandLineTool` for
@@ -260,7 +315,7 @@ stdout: std.out
 Instead, the following command can be used to generate a specific CWL `CommandLineTool` for
 the `heating_degree_days` indicator, by passing it explicitly to the underlying CLI definition.
 To avoid argument ambiguity, the `--` separator is used to distinguish between `click2cwl` options
-and those of the underlying CLI process. 
+and those of the underlying CLI process.
 
 Note that the `-m id=heating_degree_days` option is used for consistency in the generated CWL `id` field.
 

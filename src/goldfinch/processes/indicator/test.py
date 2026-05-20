@@ -4,7 +4,7 @@ from click.testing import CliRunner
 import xarray as xr
 import numpy as np
 from xclim.testing.helpers import test_timeseries as tt
-from hdd import cli
+from goldfinch.processes.indicator.hdd import cli
 
 
 @pytest.fixture

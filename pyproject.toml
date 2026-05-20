@@ -41,10 +41,20 @@ dev = [
 
 [tool.pytest]
 addopts = [
+    "--import-mode=importlib",
     "--cov=goldfinch",
     "--cov-report=term-missing",
     "--cov-report=html",
 ]
 testpaths = [
     "tests",
+    "src/goldfinch/processes",
+]
+python_files = [
+    "test.py",
+    "test_*.py",
+    "*_test.py",
+]
+pythonpath = [
+    "src",
 ]
