@@ -32,6 +32,7 @@ processes = [
     "clisops",
     "geopandas",
     "xclim",
+    "h5py",
     "h5netcdf",
 ]
 dev = [
