@@ -37,6 +37,7 @@ processes = [
 dev = [
     "pytest",
     "pytest-cov",
+    "ruff",
 ]
 
 [tool.pytest]
@@ -58,3 +59,10 @@ python_files = [
 pythonpath = [
     "src",
 ]
+
+[tool.ruff]
+exclude = [".git", "__pycache__", "build", "dist"]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "W"]

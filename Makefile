@@ -23,6 +23,10 @@ help:
 	@echo "  info               - Display computed variables"
 	@echo "  install            - Install dependencies"
 	@echo "  install-dev        - Install development dependencies"
+	@echo "  check-only         - Run linting checks"
+	@echo "  check              - Install dev dependencies and run linting checks"
+	@echo "  fix-only           - Fix linting issues"
+	@echo "  fix                - Install dev dependencies and fix linting issues"
 	@echo "  test-only          - Run tests"
 	@echo "  test               - Install dev dependencies and run tests"
 	@echo "  cwl-generate-only  - Generate CWL files without installing dependencies"
@@ -46,6 +50,22 @@ install:
 install-dev: install
 	@echo "Installing development dependencies..."
 	@pip install ".[dev,processes]"
+
+.PHONY: check-only
+check-only:
+	@echo "Running linting checks..."
+	@ruff check "$(APP_ROOT)" $(RUFF_XARGS)
+
+.PHONY: check
+check: install-dev check-only
+
+.PHONY: fix-only
+fix-only:
+	@echo "Fixing linting issues..."
+	@ruff check --fix "$(APP_ROOT)" $(RUFF_XARGS)
+
+.PHONY: fix
+fix: install-dev fix-only
 
 .PHONY: test-only
 test-only:
