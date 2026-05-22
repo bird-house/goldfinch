@@ -27,7 +27,7 @@ def test_chain(tas_series, tmp_path):
     ds.to_netcdf(input_file, engine="h5netcdf")
 
     output_file = tmp_path / "out.nc"
-    poly_file = Path(__file__).with_name("small_geojson.json")
+    poly_file = Path(__file__).parents[1] / "subset" / "small_geojson.json"
     args = [str(input_file),
             str(output_file),
             "subset",
