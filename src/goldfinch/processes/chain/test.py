@@ -1,5 +1,6 @@
 import pytest
 from functools import partial
+from pathlib import Path
 from click.testing import CliRunner
 import xarray as xr
 import numpy as np
@@ -26,10 +27,11 @@ def test_chain(tas_series, tmp_path):
     ds.to_netcdf(input_file, engine="h5netcdf")
 
     output_file = tmp_path / "out.nc"
+    poly_file = Path(__file__).with_name("small_geojson.json")
     args = [str(input_file),
             str(output_file),
             "subset",
-            "-p", "small_geojson.json",
+            "-p", str(poly_file),
             "hdd",
             "--thresh", "17 degC"]
     runner = CliRunner()

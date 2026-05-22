@@ -1,5 +1,6 @@
 import click
 import warnings
+import xclim.cli
 import xclim.core.indicator
 
 try:
@@ -26,9 +27,10 @@ The CLI's output is a user input. We'll probably want to change this to a defaul
 """
 
 
-@click.command(
+@click.group(
+    invoke_without_command=True,
     help="Command line tool to compute indices on netCDF datasets. Indicators are referred to by their "
-    "(case-insensitive) identifier, as in xclim.core.indicator.registry.",
+    "identifier, as in xclim.core.indicator.registry.",
 )
 @click.option(  # WARNING: click.argument(help='...') is not supported, but click2cwl requires an 'help'
     "--indicator",
@@ -118,6 +120,11 @@ def cli(ctx, **kwargs):
         "chunks": kwargs["chunks"] or {},
     }
     ctx.obj = kwargs
+    indicator = xclim.core.indicator.registry[kwargs["indicator"]].get_instance()
+    xclim.cli._process_indicator(indicator, ctx)
+
+
+cli.result_callback()(click.pass_context(xclim.cli.write_file))
 
 
 if __name__ == "__main__":

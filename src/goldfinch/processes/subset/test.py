@@ -1,5 +1,6 @@
 import pytest
 from functools import partial
+from pathlib import Path
 from click.testing import CliRunner
 import xarray as xr
 import numpy as np
@@ -27,9 +28,10 @@ def test_poly_subset(tas_series, tmp_path):
 
     ds.to_netcdf(input_file, engine="h5netcdf")
 
+    poly_file = Path(__file__).with_name("small_geojson.json")
     args = ["-i", str(input_file),
             "-o", str(output_file),
-            "-p", "small_geojson.json",
+            "-p", str(poly_file),
             "-b", ".1",
             "-s", "2000-06",
             "-e", "2000-08",]
