@@ -23,7 +23,7 @@ def test_hdd(tas_series, tmp_path):
 
     ds.to_netcdf(input_file, engine="h5netcdf")
 
-    args = ["--indicator", "HEATING_DEGREE_DAYS", "-i", str(input_file), "-o", str(output_file), "-v"]
+    args = ["--indicator", "heating_degree_days", "-i", str(input_file), "-o", str(output_file), "-v"]
     runner = CliRunner()
     results = runner.invoke(cli, args)
     assert results.exit_code == 0

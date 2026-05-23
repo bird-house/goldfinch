@@ -26,19 +26,22 @@ The CLI's input is a path to a file, not a catalog item ID. There's a TODO below
 The CLI's output is a user input. We'll probably want to change this to a default output path.
 """
 
+INDICATOR_CHOICES = sorted({ind_cls.identifier for ind_cls in xclim.core.indicator.registry.values()})
+
 
 @click.group(
     invoke_without_command=True,
     help="Command line tool to compute indices on netCDF datasets. Indicators are referred to by their "
     "identifier, as in xclim.core.indicator.registry.",
 )
-@click.option(  # WARNING: click.argument(help='...') is not supported, but click2cwl requires an 'help'
+# WARNING: click.argument(help='...') is not supported, but click2cwl requires an 'help'
+@click.help_option("-h", "--help")  # place after "arguments" to transparently respect their position
+@click.option(
     "--indicator",
-    type=click.Choice(choices=list(xclim.core.indicator.registry)),
+    type=click.Choice(choices=INDICATOR_CHOICES),
     help="Indicator to compute.",
     required=True,
 )
-@click.help_option("-h", "--help")  # place after "arguments" to transparently respect their position
 @click.option(
     "-i",
     "--input",
@@ -121,8 +124,10 @@ def cli(ctx, **kwargs):
         "chunks": kwargs["chunks"] or {},
     }
     ctx.obj = kwargs
-    indicator = xclim.core.indicator.registry[kwargs["indicator"]].get_instance()
-    xclim.cli._process_indicator(indicator, ctx)
+    indicator_command = xclim.cli.cli.get_command(ctx, kwargs["indicator"])
+    if indicator_command is None:
+        raise click.BadArgumentUsage(f"Indicator '{kwargs['indicator']}' not found in xclim.")
+    ctx.invoke(indicator_command.callback)
 
 
 cli.result_callback()(click.pass_context(xclim.cli.write_file))
