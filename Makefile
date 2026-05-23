@@ -29,6 +29,9 @@ help:
 	@echo "  fix                - Install dev dependencies and fix linting issues"
 	@echo "  test-only          - Run tests"
 	@echo "  test               - Install dev dependencies and run tests"
+	@echo "  clean-build        - Remove build artifacts"
+	@echo "  clean-cov          - Remove coverage artifacts"
+	@echo "  clean              - Run cleanup targets"
 	@echo "  cwl-generate-only  - Generate CWL files without installing dependencies"
 	@echo "  cwl-generate       - Install dependencies and generate CWL files"
 	@echo "  cwl-generate-all   - Force regeneration of all CWL files"
@@ -74,6 +77,21 @@ test-only:
 
 .PHONY: test
 test: install-dev test-only
+
+.PHONY: clean-build
+clean-build:
+	@echo "Cleaning build artifacts..."
+	@find "$(APP_ROOT)" -type d \( -name "build" -o -name "dist" -o -name "*.egg-info" \) -prune -exec rm -rf {} +
+	@find "$(APP_ROOT)" -type f \( -name "*.egg" -o -name "*.whl" \) -delete
+
+.PHONY: clean-cov
+clean-cov:
+	@echo "Cleaning coverage artifacts..."
+	@find "$(APP_ROOT)" -type f \( -name ".coverage" -o -name ".coverage.*" -o -name "coverage.xml" \) -delete
+	@find "$(APP_ROOT)" -type d -name "htmlcov" -prune -exec rm -rf {} +
+
+.PHONY: clean
+clean: clean-cov clean-build
 
 # For each Python file, generate the corresponding CWL file
 # Will only run modified Python files by default
