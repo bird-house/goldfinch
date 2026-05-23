@@ -1,3 +1,12 @@
+"""
+Demonstration chaninig of Click subcommands to form a workflow.
+
+The resulting CWL will however consider it a *single* `CommandLineTool`.
+This allows the processes to directly chain inputs/outputs in-memory,
+which is more efficient than going through an intermediate file that would
+be required by a CWL `Workflow`.
+"""
+
 import click
 import clisops.core
 import geopandas as gpd

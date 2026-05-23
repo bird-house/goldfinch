@@ -95,11 +95,14 @@ clean: clean-cov clean-build
 
 # For each Python file, generate the corresponding CWL file
 # Will only run modified Python files by default
+# All process modules expose the entrypoint command as 'cli'.
+# Some modules (for example chain.py) define multiple Click commands, so this avoids ambiguity for command selection.
 %.cwl: %.py
 	@echo "Generating CWL for [$<]..."
 	click2cwl \
 		--process $< \
-		--output $@ \
+		--command cli \
+		--output-cwl $@ \
 		--docker "$(APP_DOCKER_IMAGE)" \
 		--cwl-version v1.2 \
 		--metadata "id=$(@F:.cwl=)"

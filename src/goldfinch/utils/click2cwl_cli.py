@@ -322,7 +322,7 @@ def main(ctx: click.Context, **kwargs: str) -> None:
         output_job = kwargs["job_params"]
     elif "cwl_type" in kwargs:
         cli_ctx.args.extend(["--dump", kwargs["cwl_type"]])
-    if kwargs.get("output"):
+    if kwargs.get("output_cwl"):
         output_cwl = kwargs["output_cwl"]
 
     # add additional parameters to the CWL context
