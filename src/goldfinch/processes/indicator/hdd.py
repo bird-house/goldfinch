@@ -69,6 +69,7 @@ The CLI's output is a user input. We'll probably want to change this to a defaul
     "--engine",
     help="Engine to use when opening the input dataset(s). "
     "If not specified, xarray decides.",
+    default="h5netcdf",
 )
 @click.pass_context
 def cli(ctx, **kwargs):
