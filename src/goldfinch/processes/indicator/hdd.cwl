@@ -24,7 +24,7 @@ inputs:
     inputBinding:
       position: 6
       prefix: --dask-nthreads
-    type: None?
+    type: int?
   engine:
     inputBinding:
       position: 9
@@ -394,7 +394,7 @@ inputs:
     inputBinding:
       position: 5
       prefix: -v
-    type: None?
+    type: int?
 outputs:
   results:
     outputBinding:

@@ -14,7 +14,7 @@ inputs:
     inputBinding:
       position: 5
       prefix: -b
-    type: None?
+    type: float?
   end:
     inputBinding:
       position: 7
@@ -59,7 +59,7 @@ inputs:
     inputBinding:
       position: 10
       prefix: -v
-    type: None?
+    type: int?
 outputs:
   results:
     outputBinding:

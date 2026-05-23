@@ -16,7 +16,8 @@ license = "Apache-2.0"
 dependencies = [
     "click",
     "click-option-group",
-    "click2cwl==0.4.0",
+    # FIXME: pin of 'click2cwl>0.4.0' to include param type fix (https://github.com/Terradue/click2cwl/pull/11)
+    "click2cwl @ git+https://github.com/Terradue/click2cwl.git@af5dccd01952f715b41ed91640afa6180fefecfd",
 ]
 
 [project.scripts]
