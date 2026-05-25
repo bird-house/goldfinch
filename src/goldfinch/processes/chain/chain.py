@@ -20,6 +20,7 @@ import xclim
 def cli(input, output):
     pass
 
+
 @cli.result_callback()
 def process_pipeline(processors, input, output):
     click.echo(f"INPUT: {input.name}")
@@ -30,6 +31,7 @@ def process_pipeline(processors, input, output):
         ds = processor(ds)
 
     ds.to_netcdf(output, engine="h5netcdf")
+
 
 @cli.command
 @click.option("-p", "--poly", help="Path to the polygon shapefile.")
