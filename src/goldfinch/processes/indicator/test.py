@@ -4,7 +4,7 @@ from click.testing import CliRunner
 import xarray as xr
 import numpy as np
 from xclim.testing.helpers import test_timeseries as tt
-from hdd import cli
+from goldfinch.processes.indicator.hdd import cli
 
 
 @pytest.fixture
@@ -23,11 +23,12 @@ def test_hdd(tas_series, tmp_path):
 
     ds.to_netcdf(input_file, engine="h5netcdf")
 
-    args = ["-i", str(input_file), "-o", str(output_file), "-v", "heating_degree_days"]
+    args = ["--indicator", "heating_degree_days", "-i", str(input_file), "-o", str(output_file), "-v"]
     runner = CliRunner()
     results = runner.invoke(cli, args)
+    assert results.exit_code == 0
     assert "Processing :" in results.output
 
-    out = xr.open_dataset(output_file)
+    out = xr.open_dataset(output_file, engine="h5netcdf")
     outvar = list(out.data_vars.values())[0]
     np.testing.assert_allclose(outvar[0], 6588.0)

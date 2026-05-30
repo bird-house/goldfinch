@@ -1,38 +1,49 @@
 import click
 import clisops.core
-import warnings
 import geopandas as gpd
 import xarray as xr
 
 """
 # Notes
 
-This is a basic implementation of a clisops command. 
+This is a basic implementation of a clisops command.
 
-There is potential to use the click.Group command to chain multiple commands together, 
-but this one here is standalone.  
+There is potential to use the click.Group command to chain multiple commands together,
+but this one here is standalone.
 
 Missing features:
- - error handling; 
- - multiple input datasets; 
+ - error handling;
+ - multiple input datasets;
  - dask parallelism;
  - input from catalog (currently only accepts a file path);
- - CRS option; 
- - xarray engine option; 
+ - CRS option;
+ - xarray engine option;
 """
 
 
 @click.command()
+@click.help_option("-h", "--help")
 @click.option(
     "-i",
     "--input",
     help="Input dataset identifier from catalog.",
     multiple=False,
 )
-@click.option("-o", "--output", help="Output filepath. A new file will be created")
-@click.option("-p", "--poly", help="Path to the polygon shapefile.")
+@click.option(
+    "-o", "--output",
+    help="Output filepath. A new file will be created",
+    type=click.Path(exists=False, dir_okay=False),
+)
+@click.option(
+    "-p", "--poly",
+    help="Path to the polygon shapefile.",
+    type=click.Path(exists=True, dir_okay=False),
+)
 @click.option("-b", "--buffer",
-              help="Buffer distance to apply to the polygon. Units are the same as the coordinate system of the polygon.",
+              help=(
+                  "Buffer distance to apply to the polygon. "
+                  "Units are the same as the coordinate system of the polygon."
+              ),
               default=0, type=float)
 @click.option("-s",
               "--start",

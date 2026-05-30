@@ -1,3 +1,12 @@
+"""
+Demonstration chaninig of Click subcommands to form a workflow.
+
+The resulting CWL will however consider it a *single* `CommandLineTool`.
+This allows the processes to directly chain inputs/outputs in-memory,
+which is more efficient than going through an intermediate file that would
+be required by a CWL `Workflow`.
+"""
+
 import click
 import clisops.core
 import geopandas as gpd
@@ -11,6 +20,7 @@ import xclim
 def cli(input, output):
     pass
 
+
 @cli.result_callback()
 def process_pipeline(processors, input, output):
     click.echo(f"INPUT: {input.name}")
@@ -21,6 +31,7 @@ def process_pipeline(processors, input, output):
         ds = processor(ds)
 
     ds.to_netcdf(output, engine="h5netcdf")
+
 
 @cli.command
 @click.option("-p", "--poly", help="Path to the polygon shapefile.")
@@ -35,9 +46,9 @@ def subset(**kwargs):
     def processor(ds):
         gdf = gpd.GeoDataFrame.from_file(kwargs["poly"])
         # buffer = kwargs["buffer"]
-        return clisops.core.subset_shape(ds=ds, 
-                                         shape=gdf, 
-                                         start_date=kwargs["start"], 
+        return clisops.core.subset_shape(ds=ds,
+                                         shape=gdf,
+                                         start_date=kwargs["start"],
                                          end_date=kwargs["end"]
                                         )
 
@@ -49,7 +60,7 @@ def subset(**kwargs):
 def hdd(**kwargs):
     """Heating degree days"""
     def processor(ds):
-        return xclim.atmos.heating_degree_days(ds["tas"], 
+        return xclim.atmos.heating_degree_days(ds["tas"],
                                                thresh=kwargs["thresh"]
                                                )
 

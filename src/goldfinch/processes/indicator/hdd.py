@@ -1,6 +1,7 @@
 import click
 import warnings
 import xclim.cli
+import xclim.core.indicator
 
 try:
     from dask.distributed import Client, distributed
@@ -10,43 +11,36 @@ except ImportError:
 """
 # Notes
 
-Based on xclim's CLI, which uses click.MultiCommand (recently deprecated in favor of click.Group). 
+Based on xclim's CLI, which uses click.MultiCommand (recently deprecated in favor of click.Group).
 
-Click 
+Click
 
-Dask-related options are copied from xclim but have not been tested and 
+Dask-related options are copied from xclim but have not been tested and
 would require adding dependencies to the environment.
 
-The only netCDF engine installed in the environment is h5netcdf, so the option to switch 
-to another engine would not work in this env. 
+The only netCDF engine installed in the environment is h5netcdf, so the option to switch
+to another engine would not work in this env.
 
 The CLI's input is a path to a file, not a catalog item ID. There's a TODO below about this.
 
 The CLI's output is a user input. We'll probably want to change this to a default output path.
 """
 
-class Cli(click.MultiCommand):
-    """Main cli class."""
-
-    def list_commands(self, ctx):
-        """Return the available commands (other than the indicators)."""
-        return (
-            "heating_degree_days",
-        )
-
-    def get_command(self, ctx, cmd_name):
-        """Return the requested command."""
-        if cmd_name in self.list_commands(ctx):
-            command = xclim.cli._create_command(cmd_name)
-        return command
+INDICATOR_CHOICES = sorted({ind_cls.identifier for ind_cls in xclim.core.indicator.registry.values()})
 
 
-@click.command(
-    cls=Cli,
-    chain=True,
-    help="Command line tool to compute indices on netCDF datasets. Indicators are referred to by their "
-    "(case-insensitive) identifier, as in xclim.core.indicator.registry.",
+@click.group(
     invoke_without_command=True,
+    help="Command line tool to compute indices on netCDF datasets. Indicators are referred to by their "
+    "identifier, as in xclim.core.indicator.registry.",
+)
+# WARNING: click.argument(help='...') is not supported, but click2cwl requires an 'help'
+@click.help_option("-h", "--help")  # place after "arguments" to transparently respect their position
+@click.option(
+    "--indicator",
+    type=click.Choice(choices=INDICATOR_CHOICES),
+    help="Indicator to compute.",
+    required=True,
 )
 @click.option(
     "-i",
@@ -78,6 +72,7 @@ class Cli(click.MultiCommand):
     "--engine",
     help="Engine to use when opening the input dataset(s). "
     "If not specified, xarray decides.",
+    default="h5netcdf",
 )
 @click.pass_context
 def cli(ctx, **kwargs):
@@ -96,7 +91,7 @@ def cli(ctx, **kwargs):
         kwargs["input"] = kwargs["input"][0]
 
     if kwargs["dask_nthreads"] is not None:
-        if not distributed:
+        if not distributed:  # FIXME: undefined
             raise click.BadOptionUsage(
                 "dask_nthreads",
                 "Dask's distributed scheduler is not installed, only the "
@@ -110,7 +105,7 @@ def cli(ctx, **kwargs):
                 ctx,
             )
 
-        client = Client(
+        client = Client(  # FIXME: undefined
             n_workers=1,
             threads_per_worker=kwargs["dask_nthreads"],
             memory_limit=kwargs["dask_maxmem"],
@@ -129,6 +124,11 @@ def cli(ctx, **kwargs):
         "chunks": kwargs["chunks"] or {},
     }
     ctx.obj = kwargs
+    indicator_command = xclim.cli.cli.get_command(ctx, kwargs["indicator"])
+    if indicator_command is None:
+        raise click.BadArgumentUsage(f"Indicator '{kwargs['indicator']}' not found in xclim.")
+    ctx.invoke(indicator_command.callback)
+
 
 cli.result_callback()(click.pass_context(xclim.cli.write_file))
 

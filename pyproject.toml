@@ -1,0 +1,70 @@
+[build-system]
+requires = ["setuptools>=78.1.1", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "goldfinch"
+version = "0.1.0"
+description = "Climate service processes defined through CWL."
+authors = [
+    { name = "Francis Charette-Migneault", email = "francis.charette-migneault@crim.ca" },
+    { name = "David Huard", email = "huard.david@ouranos.ca" },
+]
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+dependencies = [
+    "click",
+    "click-option-group",
+    # FIXME: pin of 'click2cwl>0.4.0' to include param type fix (https://github.com/Terradue/click2cwl/pull/11)
+    "click2cwl @ git+https://github.com/Terradue/click2cwl.git@af5dccd01952f715b41ed91640afa6180fefecfd",
+]
+
+[project.scripts]
+click2cwl = "goldfinch.utils.click2cwl_cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.optional-dependencies]
+# any additional dependencies needed by underlying processes
+# this is only to facilitate installation "all-in-one"
+processes = [
+    "clisops",
+    "geopandas",
+    "xclim",
+    "h5py",
+    "h5netcdf",
+]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "ruff",
+]
+
+[tool.pytest]
+addopts = [
+    "--import-mode=importlib",
+    "--cov=goldfinch",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+]
+testpaths = [
+    "tests",
+    "src/goldfinch/processes",
+]
+python_files = [
+    "test.py",
+    "test_*.py",
+    "*_test.py",
+]
+pythonpath = [
+    "src",
+]
+
+[tool.ruff]
+exclude = [".git", "__pycache__", "build", "dist"]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "W"]
