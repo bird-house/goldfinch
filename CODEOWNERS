@@ -1,8 +1,8 @@
 # pull request reviews
-* @fmigneault @huard
+*                   @fmigneault @huard
 
 # pull request reviews (CI)
-.github/ @fmigneault @Zeitsperre
-pyproject.toml @fmigneault @Zeitsperre
-uv.lock @fmigneault @Zeitsperre
-Makefile @fmigneault @Zeitsperre
+.github/            @fmigneault @Zeitsperre
+pyproject.toml      @fmigneault @Zeitsperre
+uv.lock             @fmigneault @Zeitsperre
+Makefile            @fmigneault @Zeitsperre
