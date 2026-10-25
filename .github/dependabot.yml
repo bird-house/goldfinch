@@ -1,0 +1,68 @@
+# Dependabot configuration for automated dependency updates
+# Reference: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /.github/workflows
+    schedule:
+      interval: "weekly"
+    groups:
+      actions:
+        patterns:
+          - "*"
+        update-types:
+          - patch
+          - minor
+          - major
+    open-pull-requests-limit: 5
+    labels:
+      - "ci"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    cooldown:
+      default-days: 7
+
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: "weekly"
+    groups:
+      python-patch-updates:
+        update-types:
+          - "patch"
+    rebase-strategy: "auto"
+    open-pull-requests-limit: 10
+    labels:
+      - "ci"
+    commit-message:
+      prefix: "pip"
+      include: "scope"
+    cooldown:
+      default-days: 7
+
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "14:00"
+    rebase-strategy: "auto"
+    open-pull-requests-limit: 3
+    labels:
+      - "ci"
+    commit-message:
+      prefix: "docker"
+      include: "scope"
+    ignore:
+      # Isolate the 'python' base image specifically
+      - dependency-name: "python"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+        versions:
+          # align with dependency: https://github.com/Ouranosinc/xclim/blob/main/pyproject.toml
+          - ">= 3.15.0" # limit to Python 3.14.x, but allow any extra OS version tag
+    cooldown:
+      default-days: 7
